@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER MODEL
+// ============================================================================
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      Role     @default(CUSTOMER)
+  address   String?
+  city      String?
+  postalCode String?
+  
+  orders    Order[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([email])
+  @@index([role])
+}
+
+// ============================================================================
+// PRODUCT MODEL
+// ============================================================================
+
+model Product {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  price         Float
+  image         String?
+  category      String
+  isAvailable   Boolean  @default(true)
+  
+  orderItems    OrderItem[]
+  customizations ProductCustomization[]
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([category])
+  @@index([isAvailable])
+}
+
+// ============================================================================
+// PRODUCT CUSTOMIZATION MODEL
+// ============================================================================
+
+model ProductCustomization {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  type      CustomizationType
+  name      String
+  priceAdd  Float    @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([productId])
+}
+
+// ============================================================================
+// ORDER MODEL
+// ============================================================================
+
+model Order {
+  id               String   @id @default(cuid())
+  customerId       String
+  customer         User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  status           OrderStatus @default(PENDING)
+  totalPrice       Float
+  deliveryAddress  String
+  
+  items            OrderItem[]
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// ORDER ITEM MODEL
+// ============================================================================
+
+model OrderItem {
+  id              String   @id @default(cuid())
+  orderId         String
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id])
+  
+  quantity        Int
+  price           Float
+  customizations  String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([orderId])
+  @@index([productId])
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  STAFF
+}
+
+enum CustomizationType {
+  size
+  milk
+  extra
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}
