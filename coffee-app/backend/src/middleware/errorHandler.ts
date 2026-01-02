@@ -8,9 +8,8 @@ export const globalErrorHandler = (
   res: Response,
   next: NextFunction
 ): void => {
-  // Use next to avoid unused parameter warning
   void next;
-  
+
   logger.error('Error caught by global handler:', error);
 
   if (error instanceof AppError) {
