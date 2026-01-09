@@ -28,11 +28,11 @@ function App() {
             <Route path="/register" element={<Register />} />
 
             {/* Protected Routes - Coming in Section 3 */}
-            {/* <Route path="/menu" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
-            <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
-            <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-            <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} /> */
+            {/* <Route path="/menu" element={<Menu />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/profile" element={<Profile />} /> */}
 
             {/* 404 */}
             <Route path="*" element={<Navigate to="/" />} />
