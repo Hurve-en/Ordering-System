@@ -11,6 +11,7 @@ const Checkout: React.FC = () => {
   const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state: any) => state.auth);
   const { items, totalPrice } = useAppSelector((state: any) => state.cart);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
 
@@ -29,8 +30,10 @@ const Checkout: React.FC = () => {
       return;
     }
 
+    if (!mapContainerRef.current) return;
+
     // Initialize map
-    const map = L.map(mapRef.current!).setView([10.3157, 123.8854], 12); // Cebu coordinates
+    const map = L.map(mapContainerRef.current).setView([10.3157, 123.8854], 12); // Cebu coordinates
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
       maxZoom: 19,
@@ -144,7 +147,7 @@ const Checkout: React.FC = () => {
                 <h2 className="text-2xl font-bold text-coffee-900 mb-4">📍 Pin Your Location</h2>
                 <p className="text-gray-600 mb-4">Click on the map to pin your delivery location in Cebu</p>
                 <div
-                  ref={mapRef}
+                  ref={mapContainerRef}
                   className="w-full h-96 rounded-lg border-2 border-coffee-200"
                   style={{ minHeight: '400px' }}
                 />

@@ -10,6 +10,7 @@ const Profile: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state: any) => state.auth);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
 
@@ -43,8 +44,10 @@ const Profile: React.FC = () => {
       });
     }
 
+    if (!mapContainerRef.current) return;
+
     // Initialize map
-    const map = L.map(mapRef.current!).setView([10.3157, 123.8854], 12);
+    const map = L.map(mapContainerRef.current).setView([10.3157, 123.8854], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
       maxZoom: 19,
@@ -169,7 +172,7 @@ const Profile: React.FC = () => {
               <h2 className="text-2xl font-bold text-coffee-900 mb-4">📍 Set Default Delivery Location</h2>
               <p className="text-gray-600 mb-4">Click on the map to set your preferred delivery location</p>
               <div
-                ref={mapRef}
+                ref={mapContainerRef}
                 className="w-full h-80 rounded-lg border-2 border-coffee-200"
                 style={{ minHeight: '320px' }}
               />
