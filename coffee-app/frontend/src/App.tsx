@@ -1,15 +1,20 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useAppSelector } from './hooks/useRedux';
-import { Navbar } from './components/Common/Navbar';
-import { Footer } from './components/Common/Footer';
-import { Login } from './pages/Login';
-import { Register } from './pages/Register';
-import { Home } from './pages/Home';
-import Menu from './pages/Menu';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import Orders from './pages/Orders';
-import Profile from './pages/Profile';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { useAppSelector } from "./hooks/useRedux";
+import Navbar from "./components/Common/Navbar";
+import Footer from "./components/Common/Footer";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Home from "./pages/Home";
+import Menu from "./pages/Menu";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import Orders from "./pages/Orders";
+import Profile from "./pages/Profile";
 
 interface ProtectedRouteProps {
   children: JSX.Element;
@@ -35,9 +40,30 @@ function App() {
 
             {/* Protected Routes */}
             <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-            <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute>
+                  <Checkout />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute>
+                  <Orders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
 
             {/* 404 */}
             <Route path="*" element={<Navigate to="/" />} />
