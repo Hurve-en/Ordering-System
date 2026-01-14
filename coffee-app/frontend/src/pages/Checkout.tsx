@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../hooks/useRedux';
-import { clearCart } from '../redux/slices/cartSlice';
-import { apiService } from '../services/api';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../hooks/useRedux";
+import { clearCart } from "../redux/slices/cartSlice";
+import { apiService } from "../services/api";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
@@ -16,17 +16,17 @@ const Checkout: React.FC = () => {
   const markerRef = useRef<L.Marker | null>(null);
 
   const [formData, setFormData] = useState({
-    address: '',
-    city: 'Cebu',
-    postalCode: '',
+    address: "",
+    city: "Cebu",
+    postalCode: "",
   });
   const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
@@ -34,15 +34,15 @@ const Checkout: React.FC = () => {
 
     // Initialize map
     const map = L.map(mapContainerRef.current).setView([10.3157, 123.8854], 12); // Cebu coordinates
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
       maxZoom: 19,
     }).addTo(map);
 
     mapRef.current = map;
 
     // Click to pin location
-    map.on('click', (e: L.LeafletMouseEvent) => {
+    map.on("click", (e: L.LeafletMouseEvent) => {
       const { lat, lng } = e.latlng;
       setCoordinates([lat, lng]);
 
@@ -52,8 +52,10 @@ const Checkout: React.FC = () => {
 
       const marker = L.marker([lat, lng], {
         icon: L.icon({
-          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+          iconUrl:
+            "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+          shadowUrl:
+            "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
           iconSize: [25, 41],
           iconAnchor: [12, 41],
           popupAnchor: [1, -34],
@@ -61,7 +63,11 @@ const Checkout: React.FC = () => {
         }),
       })
         .addTo(map)
-        .bindPopup(`📍 Pinned Location<br>Lat: ${lat.toFixed(4)}<br>Lng: ${lng.toFixed(4)}`);
+        .bindPopup(
+          `📍 Pinned Location<br>Lat: ${lat.toFixed(4)}<br>Lng: ${lng.toFixed(
+            4
+          )}`
+        );
 
       markerRef.current = marker;
     });
@@ -71,7 +77,9 @@ const Checkout: React.FC = () => {
     };
   }, [isAuthenticated, navigate]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -83,17 +91,17 @@ const Checkout: React.FC = () => {
     e.preventDefault();
 
     if (!formData.address) {
-      setError('Please enter delivery address');
+      setError("Please enter delivery address");
       return;
     }
 
     if (!coordinates) {
-      setError('Please pin your location on the map');
+      setError("Please pin your location on the map");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const orderData = {
@@ -108,10 +116,10 @@ const Checkout: React.FC = () => {
 
       await apiService.createOrder(orderData);
       dispatch(clearCart());
-      alert('Order placed successfully! 🎉');
-      navigate('/orders');
+      alert("Order placed successfully! 🎉");
+      navigate("/orders");
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to place order');
+      setError(err.response?.data?.message || "Failed to place order");
     } finally {
       setLoading(false);
     }
@@ -121,9 +129,11 @@ const Checkout: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-coffee-900">Invalid checkout</h1>
+          <h1 className="text-2xl font-bold text-coffee-900">
+            Invalid checkout
+          </h1>
           <button
-            onClick={() => navigate('/menu')}
+            onClick={() => navigate("/menu")}
             className="mt-4 px-6 py-2 bg-coffee-900 text-white rounded-lg"
           >
             Back to Menu
@@ -140,90 +150,113 @@ const Checkout: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Checkout Form */}
-          <div className="lg:col-span-2">
-            <form onSubmit={handlePlaceOrder} className="space-y-6">
-              {/* Map Section */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-2xl font-bold text-coffee-900 mb-4">📍 Pin Your Location</h2>
-                <p className="text-gray-600 mb-4">Click on the map to pin your delivery location in Cebu</p>
-                <div
-                  ref={mapContainerRef}
-                  className="w-full h-96 rounded-lg border-2 border-coffee-200"
-                  style={{ minHeight: '400px' }}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Map Section - NOT STICKY */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-2xl font-bold text-coffee-900 mb-4">
+                📍 Pin Your Location
+              </h2>
+              <p className="text-gray-600 mb-4">
+                Click on the map to pin your delivery location in Cebu
+              </p>
+              <div
+                ref={mapContainerRef}
+                className="w-full rounded-lg border-2 border-coffee-200"
+                style={{ height: "400px" }}
+              />
+              {coordinates && (
+                <p className="mt-4 text-sm text-green-600">
+                  ✓ Location pinned at ({coordinates[0].toFixed(4)},{" "}
+                  {coordinates[1].toFixed(4)})
+                </p>
+              )}
+            </div>
+
+            {/* Address Section */}
+            <div className="bg-white rounded-lg shadow p-6 space-y-4">
+              <h2 className="text-2xl font-bold text-coffee-900 mb-4">
+                📮 Delivery Address
+              </h2>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Address *
+                </label>
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder="Enter your delivery address"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee-500"
+                  rows={3}
                 />
-                {coordinates && (
-                  <p className="mt-4 text-sm text-green-600">
-                    ✓ Location pinned at ({coordinates[0].toFixed(4)}, {coordinates[1].toFixed(4)})
-                  </p>
-                )}
               </div>
 
-              {/* Address Section */}
-              <div className="bg-white rounded-lg shadow p-6 space-y-4">
-                <h2 className="text-2xl font-bold text-coffee-900 mb-4">📮 Delivery Address</h2>
-
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Address *</label>
-                  <textarea
-                    name="address"
-                    value={formData.address}
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={formData.city}
                     onChange={handleChange}
-                    placeholder="Enter your delivery address"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee-500"
-                    rows={3}
                   />
                 </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
-                    <input
-                      type="text"
-                      name="postalCode"
-                      value={formData.postalCode}
-                      onChange={handleChange}
-                      placeholder="e.g., 6000"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee-500"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Postal Code
+                  </label>
+                  <input
+                    type="text"
+                    name="postalCode"
+                    value={formData.postalCode}
+                    onChange={handleChange}
+                    placeholder="e.g., 6000"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-coffee-500"
+                  />
                 </div>
               </div>
+            </div>
 
-              {/* Error Message */}
-              {error && <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">{error}</div>}
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+                {error}
+              </div>
+            )}
 
-              {/* Place Order Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-4 bg-coffee-900 text-white font-bold text-lg rounded-lg hover:bg-coffee-800 transition disabled:opacity-50"
-              >
-                {loading ? 'Placing Order...' : '✓ Place Order'}
-              </button>
-            </form>
+            {/* Place Order Button */}
+            <button
+              type="submit"
+              onClick={handlePlaceOrder}
+              disabled={loading}
+              className="w-full py-4 bg-coffee-900 text-white font-bold text-lg rounded-lg hover:bg-coffee-800 transition disabled:opacity-50"
+            >
+              {loading ? "Placing Order..." : "✓ Place Order"}
+            </button>
           </div>
 
-          {/* Order Summary */}
-          <div className="bg-white rounded-lg shadow p-6 h-fit sticky top-20">
-            <h2 className="text-2xl font-bold text-coffee-900 mb-6">Order Summary</h2>
+          {/* Order Summary - STICKY on desktop only */}
+          <div className="bg-white rounded-lg shadow p-6 lg:sticky lg:top-20 lg:h-fit">
+            <h2 className="text-2xl font-bold text-coffee-900 mb-6">
+              Order Summary
+            </h2>
 
             <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
               {items.map((item: any) => (
-                <div key={item.productId} className="flex justify-between text-sm">
+                <div
+                  key={item.productId}
+                  className="flex justify-between text-sm"
+                >
                   <span>
                     {item.product.name} × {item.quantity}
                   </span>
-                  <span className="font-bold">₱{(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="font-bold">
+                    ₱{(item.price * item.quantity).toFixed(2)}
+                  </span>
                 </div>
               ))}
             </div>
