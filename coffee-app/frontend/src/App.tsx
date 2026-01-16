@@ -15,6 +15,10 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import Profile from "./pages/Profile";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminProducts from "./pages/AdminProducts";
+import AdminOrders from "./pages/AdminOrders";
 
 interface ProtectedRouteProps {
   children: JSX.Element;
@@ -38,7 +42,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/menu" element={<Menu />} />
 
-            {/* Protected Routes */}
+            {/* Customer Protected Routes */}
             <Route path="/cart" element={<Cart />} />
             <Route
               path="/checkout"
@@ -61,6 +65,33 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/products"
+              element={
+                <ProtectedRoute>
+                  <AdminProducts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/orders"
+              element={
+                <ProtectedRoute>
+                  <AdminOrders />
                 </ProtectedRoute>
               }
             />
