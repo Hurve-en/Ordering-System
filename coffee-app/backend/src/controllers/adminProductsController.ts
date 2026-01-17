@@ -3,34 +3,27 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const getAllProducts = async (
-  _req: Request,
-  res: Response
-): Promise<void> => {
+export const getAllProducts = async (req: Request, res: Response) => {
   try {
     const products = await prisma.product.findMany({
       orderBy: { createdAt: "desc" },
     });
-    res.json({ success: true, products });
+    return res.json({ success: true, products });
   } catch (error) {
     console.error("Get products error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-export const createProduct = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const createProduct = async (req: Request, res: Response) => {
   try {
     const { name, description, price, category, isAvailable } = req.body;
 
     if (!name || !price || !category) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: "Name, price, and category required",
       });
-      return;
     }
 
     const product = await prisma.product.create({
@@ -43,21 +36,18 @@ export const createProduct = async (
       },
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Product created successfully",
       product,
     });
   } catch (error) {
     console.error("Create product error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-export const updateProduct = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const updateProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, description, price, category, isAvailable } = req.body;
@@ -73,37 +63,34 @@ export const updateProduct = async (
       },
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: "Product updated successfully",
       product,
     });
-  } catch (error) {
-    const err = error as { code?: string };
-    if (err.code === "P2025") {
-      res.status(404).json({ success: false, message: "Product not found" });
-      return;
+  } catch (error: any) {
+    if (error.code === "P2025") {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
     console.error("Update product error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-export const deleteProduct = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const deleteProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     await prisma.product.delete({ where: { id } });
-    res.json({ success: true, message: "Product deleted successfully" });
-  } catch (error) {
-    const err = error as { code?: string };
-    if (err.code === "P2025") {
-      res.status(404).json({ success: false, message: "Product not found" });
-      return;
+    return res.json({ success: true, message: "Product deleted successfully" });
+  } catch (error: any) {
+    if (error.code === "P2025") {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
     }
     console.error("Delete product error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };

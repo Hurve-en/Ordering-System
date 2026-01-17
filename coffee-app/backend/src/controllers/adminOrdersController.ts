@@ -3,10 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const getAllOrders = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getAllOrders = async (req: Request, res: Response) => {
   try {
     const { status } = req.query;
     const orders = await prisma.order.findMany({
@@ -18,17 +15,14 @@ export const getAllOrders = async (
       },
       orderBy: { createdAt: "desc" },
     });
-    res.json({ success: true, orders });
+    return res.json({ success: true, orders });
   } catch (error) {
     console.error("Get orders error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-export const getOrderById = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getOrderById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const order = await prisma.order.findUnique({
@@ -47,20 +41,18 @@ export const getOrderById = async (
       },
     });
     if (!order) {
-      res.status(404).json({ success: false, message: "Order not found" });
-      return;
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
-    res.json({ success: true, order });
+    return res.json({ success: true, order });
   } catch (error) {
     console.error("Get order error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-export const updateOrderStatus = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const updateOrderStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -74,8 +66,9 @@ export const updateOrderStatus = async (
       "CANCELLED",
     ];
     if (!validStatuses.includes(status)) {
-      res.status(400).json({ success: false, message: "Invalid status" });
-      return;
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid status" });
     }
 
     const order = await prisma.order.update({
@@ -88,26 +81,23 @@ export const updateOrderStatus = async (
       },
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: "Order status updated successfully",
       order,
     });
-  } catch (error) {
-    const err = error as { code?: string };
-    if (err.code === "P2025") {
-      res.status(404).json({ success: false, message: "Order not found" });
-      return;
+  } catch (error: any) {
+    if (error.code === "P2025") {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
     console.error("Update order error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-export const cancelOrder = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const cancelOrder = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const order = await prisma.order.update({
@@ -119,14 +109,18 @@ export const cancelOrder = async (
         },
       },
     });
-    res.json({ success: true, message: "Order cancelled successfully", order });
-  } catch (error) {
-    const err = error as { code?: string };
-    if (err.code === "P2025") {
-      res.status(404).json({ success: false, message: "Order not found" });
-      return;
+    return res.json({
+      success: true,
+      message: "Order cancelled successfully",
+      order,
+    });
+  } catch (error: any) {
+    if (error.code === "P2025") {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
     console.error("Cancel order error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
