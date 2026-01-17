@@ -28,19 +28,21 @@ export const adminLogin = async (req: Request, res: Response) => {
         .json({ success: false, message: "Invalid credentials" });
     }
 
-    // Check if admin (you can set role to 'ADMIN' in database)
-    if (user.role !== "ADMIN") {
-      return res
-        .status(403)
-        .json({ success: false, message: "Not authorized as admin" });
-    }
-
-    // Check password
+    // Check password first
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
       return res
         .status(401)
         .json({ success: false, message: "Invalid credentials" });
+    }
+
+    // Check if admin - allow if role is 'ADMIN' or 'admin'
+    const isAdmin =
+      user.role === "ADMIN" || user.role === "admin" || user.role === "Admin";
+    if (!isAdmin) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Not authorized as admin" });
     }
 
     // Generate tokens
