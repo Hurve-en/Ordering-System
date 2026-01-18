@@ -8,7 +8,6 @@ import {
   notFoundHandler,
 } from "./middleware/errorHandler.ts";
 import routes from "./routes/index.ts";
-import adminRoutes from "./routes/adminRoutes.js";
 import { logger } from "./utils/logger.ts";
 
 // Load environment variables
@@ -57,9 +56,6 @@ app.get("/health", (_req: Request, res: Response) => {
 
 // API routes
 app.use("/api", routes);
-
-// Admin routes
-app.use("/api/admin", adminRoutes);
 
 // ============================================================================
 // ERROR HANDLING
