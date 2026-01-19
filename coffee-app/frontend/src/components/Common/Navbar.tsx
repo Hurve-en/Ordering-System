@@ -2,11 +2,9 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../../hooks/useRedux";
 import { logout } from "../../redux/slices/authSlice";
-import "./Navbar.module.css";
+import styles from "./Navbar.module.css";
 
-interface NavbarProps {}
-
-const Navbar: React.FC<NavbarProps> = () => {
+const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -25,96 +23,94 @@ const Navbar: React.FC<NavbarProps> = () => {
   };
 
   return (
-    <header className="navbar-header">
-      <nav className="navbar-nav">
-        <div className="navbar-container">
-          {/* Logo Section */}
-          <Link to="/" className="navbar-logo">
-            <span className="logo-icon">☕</span>
-            <span className="logo-text">Apo Coffee</span>
+    <header className={styles.header}>
+      <nav className={styles.nav}>
+        <div className={styles.container}>
+          {/* Logo */}
+          <Link to="/" className={styles.logo}>
+            <span className={styles.icon}>☕</span>
+            <span className={styles.text}>Apo Coffee</span>
           </Link>
 
-          {/* Desktop Navigation Menu */}
-          <ul className="navbar-menu">
-            <li className="menu-item">
-              <Link to="/" className="menu-link">
+          {/* Menu */}
+          <ul className={styles.menu}>
+            <li className={styles.item}>
+              <Link to="/" className={styles.link}>
                 Home
               </Link>
             </li>
-            <li className="menu-item">
-              <Link to="/menu" className="menu-link">
+            <li className={styles.item}>
+              <Link to="/menu" className={styles.link}>
                 Menu
               </Link>
             </li>
             {isAuthenticated && (
-              <li className="menu-item">
-                <Link to="/orders" className="menu-link">
+              <li className={styles.item}>
+                <Link to="/orders" className={styles.link}>
                   Orders
                 </Link>
               </li>
             )}
           </ul>
 
-          {/* Right Section */}
-          <div className="navbar-actions">
-            {/* Cart Icon */}
-            <Link to="/cart" className="cart-button">
+          {/* Actions */}
+          <div className={styles.actions}>
+            {/* Cart */}
+            <Link to="/cart" className={styles.cart}>
               <svg
-                className="cart-icon"
-                width="24"
-                height="24"
+                className={styles.svg}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
               >
                 <circle cx="9" cy="21" r="1"></circle>
                 <circle cx="20" cy="21" r="1"></circle>
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
               </svg>
               {items.length > 0 && (
-                <span className="cart-badge">{items.length}</span>
+                <span className={styles.badge}>{items.length}</span>
               )}
             </Link>
 
-            {/* User Section */}
+            {/* User or Auth */}
             {isAuthenticated ? (
-              <div className="user-section">
-                <button className="user-menu-button">
-                  <span className="user-icon">👤</span>
-                  <span className="user-name">{user?.name || "User"}</span>
+              <div className={styles.userSection}>
+                <button className={styles.userBtn}>
+                  <span className={styles.userIcon}>👤</span>
+                  <span className={styles.userName}>
+                    {user?.name || "User"}
+                  </span>
                 </button>
-                <div className="user-dropdown">
-                  <Link to="/profile" className="dropdown-item">
-                    <span>Profile</span>
+                <div className={styles.dropdown}>
+                  <Link to="/profile" className={styles.dropItem}>
+                    Profile
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="dropdown-item logout-item"
+                    className={`${styles.dropItem} ${styles.logoutItem}`}
                   >
-                    <span>Logout</span>
+                    Logout
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="auth-buttons">
-                <Link to="/login" className="auth-link">
+              <div className={styles.auth}>
+                <Link to="/login" className={styles.authLink}>
                   Login
                 </Link>
-                <Link to="/register" className="auth-button-primary">
+                <Link to="/register" className={styles.authBtn}>
                   Register
                 </Link>
               </div>
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Toggle */}
           <button
-            className="mobile-menu-toggle"
+            className={styles.toggle}
             onClick={toggleMobileMenu}
-            aria-label="Toggle mobile menu"
+            aria-label="Toggle menu"
           >
             {mobileMenuOpen ? (
               <svg
@@ -147,17 +143,17 @@ const Navbar: React.FC<NavbarProps> = () => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="mobile-menu">
+          <div className={styles.mobile}>
             <Link
               to="/"
-              className="mobile-menu-item"
+              className={styles.mobileItem}
               onClick={toggleMobileMenu}
             >
               Home
             </Link>
             <Link
               to="/menu"
-              className="mobile-menu-item"
+              className={styles.mobileItem}
               onClick={toggleMobileMenu}
             >
               Menu
@@ -165,7 +161,7 @@ const Navbar: React.FC<NavbarProps> = () => {
             {isAuthenticated && (
               <Link
                 to="/orders"
-                className="mobile-menu-item"
+                className={styles.mobileItem}
                 onClick={toggleMobileMenu}
               >
                 Orders
@@ -174,7 +170,7 @@ const Navbar: React.FC<NavbarProps> = () => {
             {isAuthenticated && (
               <Link
                 to="/profile"
-                className="mobile-menu-item"
+                className={styles.mobileItem}
                 onClick={toggleMobileMenu}
               >
                 Profile
@@ -184,14 +180,14 @@ const Navbar: React.FC<NavbarProps> = () => {
               <>
                 <Link
                   to="/login"
-                  className="mobile-menu-item"
+                  className={styles.mobileItem}
                   onClick={toggleMobileMenu}
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="mobile-menu-item"
+                  className={styles.mobileItem}
                   onClick={toggleMobileMenu}
                 >
                   Register
@@ -201,7 +197,7 @@ const Navbar: React.FC<NavbarProps> = () => {
             {isAuthenticated && (
               <button
                 onClick={handleLogout}
-                className="mobile-menu-item logout"
+                className={`${styles.mobileItem} ${styles.logout}`}
               >
                 Logout
               </button>
