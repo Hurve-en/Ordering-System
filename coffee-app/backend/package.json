@@ -15,7 +15,16 @@
     "lint": "eslint src --ext .ts",
     "type-check": "tsc --noEmit"
   },
-  "keywords": ["coffee", "ordering", "system", "api", "express"],
+  "prisma": {
+    "seed": "node --loader ts-node/esm prisma/seed.ts"
+  },
+  "keywords": [
+    "coffee",
+    "ordering",
+    "system",
+    "api",
+    "express"
+  ],
   "author": "Coffee Business",
   "license": "MIT",
   "dependencies": {
