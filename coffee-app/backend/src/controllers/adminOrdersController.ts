@@ -8,7 +8,7 @@ export const getAllOrders = async (req: Request, res: Response) => {
     const { status } = req.query;
     const orders = await prisma.order.findMany({
       where: status ? { status: status as string } : {},
-      include: { customer: true },
+      include: { user: true },
       orderBy: { createdAt: "desc" },
     });
     res.json({ success: true, orders });
@@ -17,15 +17,20 @@ export const getAllOrders = async (req: Request, res: Response) => {
   }
 };
 
-export const getOrderById = async (req: Request, res: Response) => {
+export const getOrderById = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { id } = req.params;
     const order = await prisma.order.findUnique({
-      where: { id },
-      include: { customer: true },
+      where: { id: Number(id) },
+      include: { user: true },
     });
-    if (!order)
-      return res.status(404).json({ success: false, message: "Not found" });
+    if (!order) {
+      res.status(404).json({ success: false, message: "Not found" });
+      return;
+    }
     res.json({ success: true, order });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server error" });
@@ -37,9 +42,9 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { status } = req.body;
     const order = await prisma.order.update({
-      where: { id },
+      where: { id: Number(id) },
       data: { status },
-      include: { customer: true },
+      include: { user: true },
     });
     res.json({ success: true, order });
   } catch (error) {
@@ -51,9 +56,9 @@ export const cancelOrder = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const order = await prisma.order.update({
-      where: { id },
+      where: { id: Number(id) },
       data: { status: "CANCELLED" },
-      include: { customer: true },
+      include: { user: true },
     });
     res.json({ success: true, order });
   } catch (error) {

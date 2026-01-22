@@ -1,25 +1,25 @@
-import { Response } from 'express';
-import { AuthRequest } from '../middleware/auth.ts';
-import { userService } from '../services/userService.ts';
-import { logger } from '../utils/logger.ts';
+import { Response } from "express";
+import { AuthRequest } from "../middleware/auth.js";
+import { userService } from "../services/userService.js";
+import { logger } from "../utils/logger.js";
 
 export const userController = {
   // Get user profile
   getProfile: async (req: AuthRequest, res: Response): Promise<void> => {
     try {
       if (!req.user) {
-        res.status(401).json({ message: 'User not found' });
+        res.status(401).json({ message: "User not found" });
         return;
       }
 
-      const user = await userService.getUserById(req.user.id);
+      const user = await userService.getUserById(Number(req.user.id));
       res.status(200).json({
         success: true,
-        user
+        user,
       });
     } catch (error) {
-      logger.error('Get profile error', error);
-      res.status(500).json({ message: 'Failed to get profile' });
+      logger.error("Get profile error", error);
+      res.status(500).json({ message: "Failed to get profile" });
     }
   },
 
@@ -27,30 +27,26 @@ export const userController = {
   updateProfile: async (req: AuthRequest, res: Response): Promise<void> => {
     try {
       if (!req.user) {
-        res.status(401).json({ message: 'User not found' });
+        res.status(401).json({ message: "User not found" });
         return;
       }
 
-      const { name, phone, address, city, postalCode } = req.body;
+      const { name } = req.body;
 
-      const user = await userService.updateUser(req.user.id, {
+      const user = await userService.updateUser(Number(req.user.id), {
         name,
-        phone,
-        address,
-        city,
-        postalCode
       });
 
-      logger.success('User profile updated', { userId: req.user.id });
+      logger.success("User profile updated", { userId: req.user.id });
 
       res.status(200).json({
         success: true,
-        message: 'Profile updated successfully',
-        user
+        message: "Profile updated successfully",
+        user,
       });
     } catch (error) {
-      logger.error('Update profile error', error);
-      res.status(500).json({ message: 'Failed to update profile' });
+      logger.error("Update profile error", error);
+      res.status(500).json({ message: "Failed to update profile" });
     }
   },
 
@@ -61,11 +57,11 @@ export const userController = {
       res.status(200).json({
         success: true,
         count: users.length,
-        users
+        users,
       });
     } catch (error) {
-      logger.error('Get all users error', error);
-      res.status(500).json({ message: 'Failed to get users' });
+      logger.error("Get all users error", error);
+      res.status(500).json({ message: "Failed to get users" });
     }
-  }
+  },
 };

@@ -1,18 +1,18 @@
-import { prisma } from '../index.ts';
-import { authService } from './authService.ts';
-import { AppError } from '../utils/errorHandler.ts';
-import { IUserInput, IUser } from '../types/index.ts';
+import { prisma } from "../index.js";
+import { authService } from "./authService.js";
+import { AppError } from "../utils/errorHandler.js";
+import { IUserInput, IUser } from "../types/index.js";
 
 export const userService = {
   // Create new user
   createUser: async (data: IUserInput): Promise<IUser> => {
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
-      where: { email: data.email }
+      where: { email: data.email },
     });
 
     if (existingUser) {
-      throw new AppError(400, 'User already exists with this email', true);
+      throw new AppError(400, "User already exists with this email", true);
     }
 
     // Hash password
@@ -24,20 +24,16 @@ export const userService = {
         email: data.email,
         password: hashedPassword,
         name: data.name,
-        phone: data.phone,
-        address: data.address,
-        city: data.city,
-        postalCode: data.postalCode
-      }
+      },
     });
 
     return user as unknown as IUser;
   },
 
   // Get user by ID
-  getUserById: async (id: string): Promise<IUser | null> => {
+  getUserById: async (id: number): Promise<IUser | null> => {
     const user = await prisma.user.findUnique({
-      where: { id }
+      where: { id },
     });
     return user as unknown as IUser;
   },
@@ -45,22 +41,18 @@ export const userService = {
   // Get user by email
   getUserByEmail: async (email: string): Promise<IUser | null> => {
     const user = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
     return user as unknown as IUser;
   },
 
   // Update user
-  updateUser: async (id: string, data: Partial<IUserInput>): Promise<IUser> => {
+  updateUser: async (id: number, data: Partial<IUserInput>): Promise<IUser> => {
     const user = await prisma.user.update({
       where: { id },
       data: {
-        name: data.name,
-        phone: data.phone,
-        address: data.address,
-        city: data.city,
-        postalCode: data.postalCode
-      }
+        ...(data.name && { name: data.name }),
+      },
     });
     return user as unknown as IUser;
   },
@@ -69,5 +61,5 @@ export const userService = {
   getAllUsers: async (): Promise<IUser[]> => {
     const users = await prisma.user.findMany();
     return users as unknown as IUser[];
-  }
+  },
 };

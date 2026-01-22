@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const getAllProducts = async (req: Request, res: Response) => {
+export const getAllProducts = async (_req: Request, res: Response) => {
   try {
     const products = await prisma.product.findMany({
       orderBy: { createdAt: "desc" },
@@ -17,12 +17,13 @@ export const getAllProducts = async (req: Request, res: Response) => {
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    const { name, description, price, category, isAvailable } = req.body;
+    const { name, description, price, roastLevel, grind, size, image, stock } =
+      req.body;
 
-    if (!name || !price || !category) {
+    if (!name || !price || !roastLevel || !grind || !size || !image) {
       return res.status(400).json({
         success: false,
-        message: "Name, price, and category required",
+        message: "Name, price, roastLevel, grind, size, and image are required",
       });
     }
 
@@ -31,8 +32,11 @@ export const createProduct = async (req: Request, res: Response) => {
         name,
         description: description || "",
         price: parseFloat(price),
-        category,
-        isAvailable: isAvailable !== undefined ? isAvailable : true,
+        roastLevel,
+        grind,
+        size,
+        image,
+        stock: stock !== undefined ? parseInt(stock) : 0,
       },
     });
 
@@ -50,16 +54,20 @@ export const createProduct = async (req: Request, res: Response) => {
 export const updateProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, description, price, category, isAvailable } = req.body;
+    const { name, description, price, roastLevel, grind, size, image, stock } =
+      req.body;
 
     const product = await prisma.product.update({
-      where: { id },
+      where: { id: Number(id) },
       data: {
         ...(name && { name }),
         ...(description !== undefined && { description }),
         ...(price && { price: parseFloat(price) }),
-        ...(category && { category }),
-        ...(isAvailable !== undefined && { isAvailable }),
+        ...(roastLevel && { roastLevel }),
+        ...(grind && { grind }),
+        ...(size && { size }),
+        ...(image && { image }),
+        ...(stock !== undefined && { stock: parseInt(stock) }),
       },
     });
 
@@ -82,7 +90,7 @@ export const updateProduct = async (req: Request, res: Response) => {
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    await prisma.product.delete({ where: { id } });
+    await prisma.product.delete({ where: { id: Number(id) } });
     return res.json({ success: true, message: "Product deleted successfully" });
   } catch (error: any) {
     if (error.code === "P2025") {

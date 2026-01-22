@@ -1,29 +1,24 @@
 export interface IProduct {
-  id: string;
+  id: number;
   name: string;
-  description?: string;
+  description: string;
   price: number;
-  image?: string;
-  category: string;
-  isAvailable: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface IProductCustomization {
-  id: string;
-  productId: string;
-  type: 'size' | 'milk' | 'extra';
-  name: string;
-  priceAdd: number;
+  image: string;
+  roastLevel: string;
+  grind: string;
+  size: string;
+  stock: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface IProductInput {
   name: string;
-  description?: string;
+  description: string;
   price: number;
-  image?: string;
-  category: string;
+  image: string;
+  roastLevel: string;
+  grind: string;
+  size: string;
+  stock?: number;
 }

@@ -1,13 +1,9 @@
 export interface IUser {
-  id: string;
+  id: number;
   email: string;
   password: string;
   name: string;
-  phone?: string;
   role?: string;
-  address?: string;
-  city?: string;
-  postalCode?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,10 +12,6 @@ export interface IUserInput {
   email: string;
   password: string;
   name: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  postalCode?: string;
 }
 
 export interface ILoginPayload {
@@ -28,7 +20,7 @@ export interface ILoginPayload {
 }
 
 export interface ITokenPayload {
-  id: string;
+  id: number;
   email: string;
   role?: string;
 }

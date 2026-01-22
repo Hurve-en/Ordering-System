@@ -1,45 +1,49 @@
-import { prisma } from '../index.ts';
-import { AppError } from '../utils/errorHandler.ts';
-import { IOrder, IOrderInput } from '../types';
+import { prisma } from "../index.js";
+import { AppError } from "../utils/errorHandler.js";
+import { IOrder, IOrderInput } from "../types";
 
 export const orderService = {
   // Create order
-  createOrder: async (userId: string, data: IOrderInput): Promise<IOrder> => {
+  createOrder: async (userId: number, data: IOrderInput): Promise<IOrder> => {
+    // Calculate total from items
+    const total = data.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
+
     const order = await prisma.order.create({
       data: {
-        customerId: userId,
-        totalPrice: data.totalPrice,
-        deliveryAddress: data.deliveryAddress,
-        status: 'PENDING',
+        userId,
+        total,
+        status: "pending",
         items: {
-          create: data.items.map(item => ({
+          create: data.items.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
             price: item.price,
-            customizations: item.customizations
-          }))
-        }
-      }
+          })),
+        },
+      },
     });
 
     return order as unknown as IOrder;
   },
 
   // Get order by ID
-  getOrderById: async (id: string): Promise<IOrder | null> => {
+  getOrderById: async (id: number): Promise<IOrder | null> => {
     const order = await prisma.order.findUnique({
-      where: { id }
+      where: { id },
     });
     return order as unknown as IOrder;
   },
 
   // Get user orders
-  getUserOrders: async (userId: string): Promise<IOrder[]> => {
+  getUserOrders: async (userId: number): Promise<IOrder[]> => {
     const orders = await prisma.order.findMany({
-      where: { customerId: userId },
+      where: { userId },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: "desc",
+      },
     });
     return orders as unknown as IOrder[];
   },
@@ -48,46 +52,57 @@ export const orderService = {
   getAllOrders: async (): Promise<IOrder[]> => {
     const orders = await prisma.order.findMany({
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: "desc",
+      },
     });
     return orders as unknown as IOrder[];
   },
 
   // Update order status
-  updateOrderStatus: async (id: string, status: string): Promise<IOrder> => {
-    const validStatuses = ['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'DELIVERED', 'CANCELLED'];
-    
-    if (!validStatuses.includes(status)) {
+  updateOrderStatus: async (id: number, status: string): Promise<IOrder> => {
+    const validStatuses = [
+      "pending",
+      "confirmed",
+      "preparing",
+      "ready",
+      "delivered",
+      "cancelled",
+    ];
+
+    if (!validStatuses.includes(status.toLowerCase())) {
       throw new AppError(400, `Invalid status: ${status}`, true);
     }
 
     const order = await prisma.order.update({
       where: { id },
-      data: { status: status as 'PENDING' | 'CONFIRMED' | 'PREPARING' | 'READY' | 'DELIVERED' | 'CANCELLED' }
+      data: { status },
     });
     return order as unknown as IOrder;
   },
 
   // Cancel order
-  cancelOrder: async (id: string): Promise<IOrder> => {
+  cancelOrder: async (id: number): Promise<IOrder> => {
     const order = await prisma.order.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!order) {
-      throw new AppError(404, 'Order not found', true);
+      throw new AppError(404, "Order not found", true);
     }
 
-    if (order.status === 'DELIVERED' || order.status === 'CANCELLED') {
-      throw new AppError(400, `Cannot cancel order with status ${order.status}`, true);
+    if (order.status === "delivered" || order.status === "cancelled") {
+      throw new AppError(
+        400,
+        `Cannot cancel order with status ${order.status}`,
+        true,
+      );
     }
 
     const updated = await prisma.order.update({
       where: { id },
-      data: { status: 'CANCELLED' }
+      data: { status: "cancelled" },
     });
 
     return updated as unknown as IOrder;
-  }
+  },
 };

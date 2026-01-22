@@ -1,6 +1,5 @@
-import { prisma } from '../index.ts';
-import { AppError } from '../utils/errorHandler.ts';
-import { IProduct, IProductInput } from '../types/product.ts';
+import { prisma } from "../index.js";
+import { IProduct, IProductInput } from "../types/product.js";
 
 export const productService = {
   // Get all products
@@ -10,63 +9,38 @@ export const productService = {
   },
 
   // Get product by ID
-  getProductById: async (id: string): Promise<IProduct | null> => {
+  getProductById: async (id: number): Promise<IProduct | null> => {
     const product = await prisma.product.findUnique({
-      where: { id }
+      where: { id },
     });
     return product as unknown as IProduct;
-  },
-
-  // Get products by category
-  getProductsByCategory: async (category: string): Promise<IProduct[]> => {
-    const products = await prisma.product.findMany({
-      where: { category }
-    });
-    return products as unknown as IProduct[];
   },
 
   // Create product (admin)
   createProduct: async (data: IProductInput): Promise<IProduct> => {
     const product = await prisma.product.create({
-      data
+      data,
     });
     return product as unknown as IProduct;
   },
 
   // Update product (admin)
-  updateProduct: async (id: string, data: Partial<IProductInput>): Promise<IProduct> => {
+  updateProduct: async (
+    id: number,
+    data: Partial<IProductInput>,
+  ): Promise<IProduct> => {
     const product = await prisma.product.update({
       where: { id },
-      data
+      data,
     });
     return product as unknown as IProduct;
   },
 
   // Delete product (admin)
-  deleteProduct: async (id: string): Promise<IProduct> => {
+  deleteProduct: async (id: number): Promise<IProduct> => {
     const product = await prisma.product.delete({
-      where: { id }
+      where: { id },
     });
     return product as unknown as IProduct;
   },
-
-  // Toggle product availability
-  toggleAvailability: async (id: string): Promise<IProduct> => {
-    const product = await prisma.product.findUnique({
-      where: { id }
-    });
-
-    if (!product) {
-      throw new AppError(404, 'Product not found', true);
-    }
-
-    const updated = await prisma.product.update({
-      where: { id },
-      data: {
-        isAvailable: !product.isAvailable
-      }
-    });
-
-    return updated as unknown as IProduct;
-  }
 };

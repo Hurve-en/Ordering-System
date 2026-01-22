@@ -5,9 +5,8 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
-} from "../controllers/productController";
-import { authMiddleware } from "../middleware/auth.ts"; // Use your existing one
-import { adminMiddleware } from "../middleware/auth.ts"; // Use your existing one too!
+} from "../controllers/productController.js";
+import { authMiddleware, adminMiddleware } from "../middleware/auth.js"; // ✅ One import!
 
 const router = Router();
 

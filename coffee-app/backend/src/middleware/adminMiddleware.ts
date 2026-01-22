@@ -18,22 +18,24 @@ export const adminMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
+): void => {
   try {
     // Check if user exists (should come from authMiddleware)
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Unauthorized - Please login first",
       });
+      return;
     }
 
     // Check if user is admin
     if (req.user.role !== "admin") {
-      return res.status(403).json({
+      res.status(403).json({
         success: false,
         message: "Forbidden - Admin access required",
       });
+      return;
     }
 
     next();

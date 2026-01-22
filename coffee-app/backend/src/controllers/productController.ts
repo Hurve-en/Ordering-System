@@ -5,7 +5,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 // Get all products
-export const getAllProducts = async (req: Request, res: Response) => {
+export const getAllProducts = async (_req: Request, res: Response) => {
   try {
     const products = await prisma.product.findMany({
       orderBy: {
@@ -27,7 +27,10 @@ export const getAllProducts = async (req: Request, res: Response) => {
 };
 
 // Get single product by ID
-export const getProductById = async (req: Request, res: Response) => {
+export const getProductById = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { id } = req.params;
     const product = await prisma.product.findUnique({
@@ -35,10 +38,11 @@ export const getProductById = async (req: Request, res: Response) => {
     });
 
     if (!product) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: "Product not found",
       });
+      return;
     }
 
     res.status(200).json({
@@ -55,7 +59,10 @@ export const getProductById = async (req: Request, res: Response) => {
 };
 
 // Create product (Admin only)
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { name, description, price, roastLevel, grind, size, image, stock } =
       req.body;
@@ -70,10 +77,11 @@ export const createProduct = async (req: Request, res: Response) => {
       !size ||
       !image
     ) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: "All fields are required",
       });
+      return;
     }
 
     // Check if product already exists
@@ -82,10 +90,11 @@ export const createProduct = async (req: Request, res: Response) => {
     });
 
     if (existingProduct) {
-      return res.status(409).json({
+      res.status(409).json({
         success: false,
         message: "Product already exists",
       });
+      return;
     }
 
     const product = await prisma.product.create({
@@ -116,7 +125,10 @@ export const createProduct = async (req: Request, res: Response) => {
 };
 
 // Update product (Admin only)
-export const updateProduct = async (req: Request, res: Response) => {
+export const updateProduct = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { id } = req.params;
     const { name, description, price, roastLevel, grind, size, image, stock } =
@@ -128,10 +140,11 @@ export const updateProduct = async (req: Request, res: Response) => {
     });
 
     if (!existingProduct) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: "Product not found",
       });
+      return;
     }
 
     // Check if new name already exists (if name is being changed)
@@ -140,10 +153,11 @@ export const updateProduct = async (req: Request, res: Response) => {
         where: { name },
       });
       if (duplicateProduct) {
-        return res.status(409).json({
+        res.status(409).json({
           success: false,
           message: "Product name already exists",
         });
+        return;
       }
     }
 
@@ -176,7 +190,10 @@ export const updateProduct = async (req: Request, res: Response) => {
 };
 
 // Delete product (Admin only)
-export const deleteProduct = async (req: Request, res: Response) => {
+export const deleteProduct = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -186,10 +203,11 @@ export const deleteProduct = async (req: Request, res: Response) => {
     });
 
     if (!product) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: "Product not found",
       });
+      return;
     }
 
     await prisma.product.delete({

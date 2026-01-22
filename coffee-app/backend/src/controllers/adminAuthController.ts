@@ -38,7 +38,7 @@ export const adminLogin = async (req: Request, res: Response) => {
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET || "secret",
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     return res.json({
@@ -58,12 +58,12 @@ export const adminLogin = async (req: Request, res: Response) => {
   }
 };
 
-export const getAdminStats = async (req: Request, res: Response) => {
+export const getAdminStats = async (_req: Request, res: Response) => {
   try {
     const totalOrders = await prisma.order.count();
     const totalProducts = await prisma.product.count();
     const totalRevenue = await prisma.order.aggregate({
-      _sum: { totalPrice: true },
+      _sum: { total: true },
     });
     const recentOrders = await prisma.order.findMany({
       take: 5,
@@ -75,7 +75,7 @@ export const getAdminStats = async (req: Request, res: Response) => {
       stats: {
         totalOrders,
         totalProducts,
-        totalRevenue: totalRevenue._sum.totalPrice || 0,
+        totalRevenue: totalRevenue._sum?.total || 0,
         recentOrders,
       },
     });
