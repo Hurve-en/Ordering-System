@@ -1,4 +1,4 @@
-import { ITokenPayload } from '../types';
+import { ITokenPayload } from "../types/index.ts";
 export declare const authService: {
     hashPassword: (password: string) => Promise<string>;
     comparePassword: (password: string, hashedPassword: string) => Promise<boolean>;

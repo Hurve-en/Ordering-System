@@ -1,4 +1,4 @@
-import { IUserInput, IUser } from '../types/index.js';
+import { IUserInput, IUser } from "../types/index.ts";
 export declare const userService: {
     createUser: (data: IUserInput) => Promise<IUser>;
     getUserById: (id: number) => Promise<IUser | null>;

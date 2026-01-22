@@ -1,30 +1,46 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../hooks/useRedux";
 import { clearCart } from "../redux/slices/cartSlice";
 import axios from "axios";
+import L from "leaflet";
 import "../styles/premium.css";
+import "leaflet/dist/leaflet.css";
 
 type CheckoutStep = "delivery" | "payment" | "review";
+
+interface LocationSuggestion {
+  name: string;
+  lat: number;
+  lon: number;
+}
 
 export default function Checkout() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { isAuthenticated } = useAppSelector((state: any) => state.auth);
+  const { isAuthenticated, user } = useAppSelector((state: any) => state.auth);
   const { items, totalPrice } = useAppSelector((state: any) => state.cart);
+
+  const mapRef = useRef<L.Map | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
+  const [mapInitialized, setMapInitialized] = useState(false);
 
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("delivery");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const [formData, setFormData] = useState({
     // Delivery Info
-    fullName: "",
-    email: "",
+    fullName: user?.name || "",
+    email: user?.email || "",
     phone: "",
     address: "",
     city: "Cebu",
     postalCode: "",
+    latitude: 10.3157,
+    longitude: 123.8854,
 
     // Payment Info
     paymentMethod: "cash",
@@ -48,6 +64,120 @@ export default function Checkout() {
     }
   }, [isAuthenticated, items.length, navigate]);
 
+  // Initialize map on delivery step
+  useEffect(() => {
+    if (
+      currentStep === "delivery" &&
+      !mapInitialized &&
+      mapRef.current === null
+    ) {
+      initializeMap();
+    }
+  }, [currentStep, mapInitialized]);
+
+  const initializeMap = () => {
+    const container = document.getElementById("checkout-map");
+    if (!container) return;
+
+    const map = L.map("checkout-map").setView(
+      [formData.latitude, formData.longitude],
+      14,
+    );
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
+      maxZoom: 19,
+    }).addTo(map);
+
+    const marker = L.marker([formData.latitude, formData.longitude], {
+      icon: L.icon({
+        iconUrl:
+          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+        shadowUrl:
+          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+      }),
+    }).addTo(map);
+
+    marker.bindPopup("Your delivery location");
+    markerRef.current = marker;
+    mapRef.current = map;
+    setMapInitialized(true);
+
+    map.on("click", (e) => {
+      const { lat, lng } = e.latlng;
+      updateMapMarker(lat, lng);
+      reverseGeocode(lat, lng);
+    });
+  };
+
+  const updateMapMarker = (lat: number, lng: number) => {
+    if (markerRef.current) {
+      markerRef.current.setLatLng([lat, lng]);
+    }
+    if (mapRef.current) {
+      mapRef.current.setView([lat, lng], 14);
+    }
+    setFormData((prev) => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng,
+    }));
+  };
+
+  const searchLocation = async (query: string) => {
+    if (!query || query.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
+      );
+
+      const suggestions = response.data.slice(0, 5).map((result: any) => ({
+        name: result.display_name,
+        lat: parseFloat(result.lat),
+        lon: parseFloat(result.lon),
+      }));
+
+      setSuggestions(suggestions);
+      setShowSuggestions(true);
+    } catch (err) {
+      console.error("Geocoding error:", err);
+    }
+  };
+
+  const reverseGeocode = async (lat: number, lng: number) => {
+    try {
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
+      );
+      setFormData((prev) => ({
+        ...prev,
+        address:
+          response.data.address?.road || response.data.address?.village || "",
+      }));
+    } catch (err) {
+      console.error("Reverse geocoding error:", err);
+    }
+  };
+
+  const selectSuggestion = (suggestion: LocationSuggestion) => {
+    setFormData((prev) => ({
+      ...prev,
+      address: suggestion.name,
+      latitude: suggestion.lat,
+      longitude: suggestion.lon,
+    }));
+    updateMapMarker(suggestion.lat, suggestion.lon);
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -58,66 +188,46 @@ export default function Checkout() {
       ...prev,
       [name]: value,
     }));
+
+    if (name === "address") {
+      searchLocation(value);
+    }
   };
 
   const validateDeliveryInfo = () => {
-    if (!formData.fullName.trim()) {
-      setError("Full name is required");
+    if (
+      !formData.fullName.trim() ||
+      !formData.email ||
+      !formData.phone ||
+      !formData.address
+    ) {
+      setError("Please fill in all delivery fields");
       return false;
     }
-    if (!formData.email.trim()) {
-      setError("Email is required");
-      return false;
-    }
-    if (!formData.phone.trim()) {
-      setError("Phone number is required");
-      return false;
-    }
-    if (!formData.address.trim()) {
-      setError("Address is required");
-      return false;
-    }
-    if (!formData.postalCode.trim()) {
-      setError("Postal code is required");
-      return false;
-    }
+    setError("");
     return true;
   };
 
   const validatePaymentInfo = () => {
     if (formData.paymentMethod === "card") {
-      if (!formData.cardNumber.trim() || formData.cardNumber.length < 16) {
-        setError("Valid card number is required");
-        return false;
-      }
-      if (!formData.cardExpiry.trim()) {
-        setError("Card expiry is required");
-        return false;
-      }
-      if (!formData.cardCVV.trim() || formData.cardCVV.length < 3) {
-        setError("Valid CVV is required");
+      if (!formData.cardNumber || !formData.cardExpiry || !formData.cardCVV) {
+        setError("Please fill in all card details");
         return false;
       }
     }
+    setError("");
     return true;
   };
 
   const handleNextStep = () => {
-    setError("");
-
-    if (currentStep === "delivery") {
-      if (validateDeliveryInfo()) {
-        setCurrentStep("payment");
-      }
-    } else if (currentStep === "payment") {
-      if (validatePaymentInfo()) {
-        setCurrentStep("review");
-      }
+    if (currentStep === "delivery" && validateDeliveryInfo()) {
+      setCurrentStep("payment");
+    } else if (currentStep === "payment" && validatePaymentInfo()) {
+      setCurrentStep("review");
     }
   };
 
   const handlePreviousStep = () => {
-    setError("");
     if (currentStep === "payment") {
       setCurrentStep("delivery");
     } else if (currentStep === "review") {
@@ -125,37 +235,30 @@ export default function Checkout() {
     }
   };
 
-  const handlePlaceOrder = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmitOrder = async () => {
     setLoading(true);
-    setError("");
-
     try {
-      const orderData = {
-        items: items.map((item: any) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-        totalPrice: finalTotal,
-        deliveryAddress: `${formData.address}, ${formData.city} ${formData.postalCode}`,
-        deliveryPhone: formData.phone,
-        paymentMethod: formData.paymentMethod,
-      };
-
+      const token = localStorage.getItem("token");
       const response = await axios.post(
         "http://localhost:5000/api/orders",
-        orderData,
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          deliveryAddress: `${formData.address}, ${formData.city} ${formData.postalCode}`,
+          paymentMethod: formData.paymentMethod,
+          items: items.map((item: any) => ({
+            productId: item.id,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          total: finalTotal,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
 
       if (response.data.success) {
         dispatch(clearCart());
-        navigate(`/order-confirmation/${response.data.data.id}`);
+        navigate("/orders");
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to place order");
@@ -244,7 +347,7 @@ export default function Checkout() {
                 {currentStep === "delivery" && (
                   <div className="space-y-6">
                     <h2 className="text-2xl font-bold text-brown mb-6">
-                      Delivery Information
+                      📍 Delivery Information
                     </h2>
 
                     <div>
@@ -290,18 +393,45 @@ export default function Checkout() {
                       </div>
                     </div>
 
+                    {/* MAP CONTAINER */}
                     <div>
+                      <label className="block text-sm font-semibold text-brown mb-3">
+                        📍 Click on map to pin your location
+                      </label>
+                      <div
+                        id="checkout-map"
+                        className="w-full h-96 rounded-2xl border-4 border-caramel overflow-hidden"
+                      />
+                    </div>
+
+                    {/* Address Search */}
+                    <div className="relative">
                       <label className="block text-sm font-semibold text-brown mb-2">
                         Delivery Address *
                       </label>
-                      <textarea
+                      <input
+                        type="text"
                         name="address"
                         value={formData.address}
                         onChange={handleInputChange}
-                        placeholder="Street address, building, apartment, etc."
-                        rows={3}
+                        placeholder="Search or type your address..."
                         className="w-full px-4 py-3 border border-caramel rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                       />
+                      {showSuggestions && suggestions.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 bg-white border border-caramel rounded-lg shadow-lg mt-1 z-50">
+                          {suggestions.map((suggestion, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => selectSuggestion(suggestion)}
+                              className="w-full text-left px-4 py-3 hover:bg-amber-50 border-b border-caramel last:border-0 transition"
+                            >
+                              <p className="text-sm font-semibold text-brown">
+                                {suggestion.name}
+                              </p>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -401,15 +531,12 @@ export default function Checkout() {
                             name="cardNumber"
                             value={formData.cardNumber}
                             onChange={(e) => {
-                              const value = e.target.value.replace(/\s/g, "");
-                              if (value.length <= 16) {
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  cardNumber: value
-                                    .replace(/(\d{4})/g, "$1 ")
-                                    .trim(),
-                                }));
-                              }
+                              let value = e.target.value.replace(/\s/g, "");
+                              value = value.replace(/(\d{4})/g, "$1 ").trim();
+                              setFormData((prev) => ({
+                                ...prev,
+                                cardNumber: value,
+                              }));
                             }}
                             placeholder="1234 5678 9012 3456"
                             maxLength={19}
@@ -553,7 +680,7 @@ export default function Checkout() {
 
                   {currentStep === "review" && (
                     <button
-                      onClick={handlePlaceOrder}
+                      onClick={handleSubmitOrder}
                       disabled={loading}
                       className="flex-1 btn btn-primary"
                     >

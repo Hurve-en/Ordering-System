@@ -10,13 +10,13 @@ export const handleError = (error) => {
     if (error instanceof AppError) {
         return {
             statusCode: error.statusCode,
-            message: error.message
+            message: error.message,
         };
     }
     // Default error response
     return {
         statusCode: 500,
-        message: 'Internal Server Error'
+        message: "Internal Server Error",
     };
 };
 export const createError = (statusCode, message) => {

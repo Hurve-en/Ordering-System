@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { AuthRequest } from '../middleware/auth.js';
+import { Request, Response } from "express";
+import { AuthRequest } from "../middleware/auth.ts";
 export declare const authController: {
     register: (req: Request, res: Response) => Promise<void>;
     login: (req: Request, res: Response) => Promise<void>;

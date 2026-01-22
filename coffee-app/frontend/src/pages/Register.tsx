@@ -9,30 +9,16 @@ export default function Register() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
-    phone: "",
     password: "",
     confirmPassword: "",
+    name: "",
+    phone: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  // Password strength checker
-  const getPasswordStrength = (pwd: string) => {
-    if (!pwd) return 0;
-    let strength = 0;
-    if (pwd.length >= 8) strength++;
-    if (/[A-Z]/.test(pwd)) strength++;
-    if (/[a-z]/.test(pwd)) strength++;
-    if (/[0-9]/.test(pwd)) strength++;
-    if (/[^A-Za-z0-9]/.test(pwd)) strength++;
-    return strength;
-  };
-
-  const passwordStrength = getPasswordStrength(formData.password);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -40,7 +26,6 @@ export default function Register() {
       ...prev,
       [name]: value,
     }));
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -49,22 +34,29 @@ export default function Register() {
     }
   };
 
+  const getPasswordStrength = (password: string) => {
+    if (!password) return 0;
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[^a-zA-Z\d]/.test(password)) strength++;
+    return strength;
+  };
+
+  const passwordStrength = getPasswordStrength(formData.password);
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Full name is required";
+    if (!formData.name.trim()) newErrors.name = "Full name is required";
+    if (!formData.email) newErrors.email = "Email is required";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
     }
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
+    if (!formData.password) newErrors.password = "Password is required";
+    if (formData.password.length < 8)
+      newErrors.password = "Password must be at least 8 characters";
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
     }
@@ -84,15 +76,15 @@ export default function Register() {
       const response = await axios.post(
         "http://localhost:5000/api/auth/register",
         {
-          name: formData.name,
           email: formData.email,
           password: formData.password,
+          name: formData.name,
           phone: formData.phone || undefined,
         },
       );
 
       if (response.data.success) {
-        const { token, user } = response.data.data;
+        const { token, user } = response.data;
         localStorage.setItem("token", token);
 
         dispatch(
@@ -122,13 +114,11 @@ export default function Register() {
           <div className="bg-gradient-to-r from-amber-900 to-amber-800 text-cream py-12 text-center">
             <div className="text-7xl mb-4">☕</div>
             <h1 className="text-4xl font-bold mb-2">Apo Coffee</h1>
-            <p className="text-lg opacity-90">
-              Join our premium coffee community
-            </p>
+            <p className="text-lg opacity-90">Join our coffee community!</p>
           </div>
 
           {/* Form Content */}
-          <div className="p-8 space-y-6">
+          <div className="p-8 space-y-5">
             {/* Error Message */}
             {errors.submit && (
               <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
@@ -138,13 +128,13 @@ export default function Register() {
 
             {/* Form */}
             <form className="space-y-5" onSubmit={handleSubmit}>
-              {/* Full Name */}
+              {/* Name */}
               <div>
                 <label
                   htmlFor="name"
                   className="block text-sm font-semibold text-brown mb-2"
                 >
-                  Full Name *
+                  Full Name
                 </label>
                 <input
                   id="name"
@@ -153,13 +143,15 @@ export default function Register() {
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition ${
-                    errors.name ? "border-red-500" : "border-caramel"
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition ${
+                    errors.name
+                      ? "border-red-500 focus:ring-red-300"
+                      : "border-caramel focus:ring-accent"
                   }`}
                   placeholder="Juan Dela Cruz"
                 />
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">✗ {errors.name}</p>
+                  <p className="mt-1 text-sm text-red-600">✕ {errors.name}</p>
                 )}
               </div>
 
@@ -169,7 +161,7 @@ export default function Register() {
                   htmlFor="email"
                   className="block text-sm font-semibold text-brown mb-2"
                 >
-                  Email Address *
+                  Email Address
                 </label>
                 <input
                   id="email"
@@ -178,13 +170,15 @@ export default function Register() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition ${
-                    errors.email ? "border-red-500" : "border-caramel"
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition ${
+                    errors.email
+                      ? "border-red-500 focus:ring-red-300"
+                      : "border-caramel focus:ring-accent"
                   }`}
                   placeholder="you@example.com"
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">✗ {errors.email}</p>
+                  <p className="mt-1 text-sm text-red-600">✕ {errors.email}</p>
                 )}
               </div>
 
@@ -213,7 +207,7 @@ export default function Register() {
                   htmlFor="password"
                   className="block text-sm font-semibold text-brown mb-2"
                 >
-                  Password *
+                  Password
                 </label>
                 <div className="relative">
                   <input
@@ -223,46 +217,56 @@ export default function Register() {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition ${
-                      errors.password ? "border-red-500" : "border-caramel"
+                    className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 transition ${
+                      errors.password
+                        ? "border-red-500 focus:ring-red-300"
+                        : "border-caramel focus:ring-accent"
                     }`}
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-muted hover:text-brown transition"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-brown transition"
                   >
                     {showPassword ? "👁️" : "👁️‍🗨️"}
                   </button>
                 </div>
                 {errors.password && (
                   <p className="mt-1 text-sm text-red-600">
-                    ✗ {errors.password}
+                    ✕ {errors.password}
                   </p>
                 )}
-
-                {/* Password Strength Indicator */}
                 {formData.password && (
                   <div className="mt-2">
-                    <div className="flex gap-1 mb-1">
-                      {[1, 2, 3, 4, 5].map((i) => (
+                    <div className="flex gap-1 h-2">
+                      {[1, 2, 3, 4].map((i) => (
                         <div
                           key={i}
-                          className={`h-1 flex-1 rounded-full transition ${
+                          className={`flex-1 rounded-full ${
                             i <= passwordStrength
-                              ? "bg-accent"
-                              : "bg-caramel bg-opacity-20"
+                              ? i === 1
+                                ? "bg-red-500"
+                                : i === 2
+                                  ? "bg-yellow-500"
+                                  : i === 3
+                                    ? "bg-blue-500"
+                                    : "bg-green-500"
+                              : "bg-gray-200"
                           }`}
                         />
                       ))}
                     </div>
-                    <p className="text-xs text-muted">
-                      {passwordStrength <= 1
-                        ? "Weak password"
-                        : passwordStrength <= 3
-                          ? "Medium strength"
-                          : "Strong password"}
+                    <p className="text-xs text-muted mt-1">
+                      {passwordStrength === 0
+                        ? "Very Weak"
+                        : passwordStrength === 1
+                          ? "Weak"
+                          : passwordStrength === 2
+                            ? "Fair"
+                            : passwordStrength === 3
+                              ? "Good"
+                              : "Strong"}
                     </p>
                   </div>
                 )}
@@ -274,7 +278,7 @@ export default function Register() {
                   htmlFor="confirmPassword"
                   className="block text-sm font-semibold text-brown mb-2"
                 >
-                  Confirm Password *
+                  Confirm Password
                 </label>
                 <div className="relative">
                   <input
@@ -284,24 +288,24 @@ export default function Register() {
                     required
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition ${
+                    className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 transition ${
                       errors.confirmPassword
-                        ? "border-red-500"
-                        : "border-caramel"
+                        ? "border-red-500 focus:ring-red-300"
+                        : "border-caramel focus:ring-accent"
                     }`}
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-3 text-muted hover:text-brown transition"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-brown transition"
                   >
                     {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
                   </button>
                 </div>
                 {errors.confirmPassword && (
                   <p className="mt-1 text-sm text-red-600">
-                    ✗ {errors.confirmPassword}
+                    ✕ {errors.confirmPassword}
                   </p>
                 )}
               </div>
@@ -310,7 +314,7 @@ export default function Register() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn btn-primary btn-lg w-full mt-6"
+                className="btn btn-primary btn-lg w-full"
               >
                 {loading ? "⏳ Creating Account..." : "✓ Create Account"}
               </button>
@@ -322,9 +326,7 @@ export default function Register() {
                 <div className="w-full border-t border-caramel border-opacity-30"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-muted">
-                  Already registered?
-                </span>
+                <span className="px-2 bg-white text-muted">or</span>
               </div>
             </div>
 
@@ -334,12 +336,12 @@ export default function Register() {
               type="button"
               className="btn btn-secondary btn-lg w-full"
             >
-              Login to Your Account
+              Already Have an Account? Login
             </button>
 
             {/* Terms */}
             <p className="text-center text-xs text-muted">
-              By registering, you agree to our{" "}
+              By creating an account, you agree to our{" "}
               <a href="#" className="text-accent font-semibold hover:underline">
                 Terms & Conditions
               </a>

@@ -1,5 +1,5 @@
-import { Response } from 'express';
-import { AuthRequest } from '../middleware/auth.js';
+import { Response } from "express";
+import { AuthRequest } from "../middleware/auth.ts";
 export declare const orderController: {
     createOrder: (req: AuthRequest, res: Response) => Promise<void>;
     getOrderById: (req: AuthRequest, res: Response) => Promise<void>;

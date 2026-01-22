@@ -1,4 +1,4 @@
-import { IOrder, IOrderInput } from '../types';
+import { IOrder, IOrderInput } from "../types/index.ts";
 export declare const orderService: {
     createOrder: (userId: number, data: IOrderInput) => Promise<IOrder>;
     getOrderById: (id: number) => Promise<IOrder | null>;

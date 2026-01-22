@@ -1,7 +1,7 @@
 import { Response } from "express";
-import { AuthRequest } from "../middleware/auth.js";
-import { orderService } from "../services/orderService.js";
-import { logger } from "../utils/logger.js";
+import { AuthRequest } from "../middleware/auth.ts";
+import { orderService } from "../services/orderService.ts";
+import { logger } from "../utils/logger.ts";
 
 export const orderController = {
   // Create order

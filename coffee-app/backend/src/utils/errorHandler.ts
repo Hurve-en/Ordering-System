@@ -1,10 +1,15 @@
 export class AppError extends Error {
+  public statusCode: number;
+  public isOperational: boolean;
+
   constructor(
-    public statusCode: number,
+    statusCode: number,
     message: string,
-    public isOperational: boolean = true
+    isOperational: boolean = true,
   ) {
     super(message);
+    this.statusCode = statusCode;
+    this.isOperational = isOperational;
     Object.setPrototypeOf(this, AppError.prototype);
   }
 }
@@ -13,14 +18,14 @@ export const handleError = (error: unknown) => {
   if (error instanceof AppError) {
     return {
       statusCode: error.statusCode,
-      message: error.message
+      message: error.message,
     };
   }
 
   // Default error response
   return {
     statusCode: 500,
-    message: 'Internal Server Error'
+    message: "Internal Server Error",
   };
 };
 

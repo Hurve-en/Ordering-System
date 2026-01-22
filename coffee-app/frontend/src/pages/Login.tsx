@@ -36,7 +36,7 @@ export default function Login() {
       );
 
       if (response.data.success) {
-        const { token, user } = response.data.data;
+        const { token, user } = response.data;
         localStorage.setItem("token", token);
 
         dispatch(
@@ -121,13 +121,13 @@ export default function Login() {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-caramel rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition"
+                    className="w-full px-4 py-3 pr-12 border border-caramel rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-muted hover:text-brown transition"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-brown transition"
                   >
                     {showPassword ? "👁️" : "👁️‍🗨️"}
                   </button>

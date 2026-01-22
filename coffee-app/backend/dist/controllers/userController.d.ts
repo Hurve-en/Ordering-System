@@ -1,5 +1,5 @@
-import { Response } from 'express';
-import { AuthRequest } from '../middleware/auth.js';
+import { Response } from "express";
+import { AuthRequest } from "../middleware/auth.ts";
 export declare const userController: {
     getProfile: (req: AuthRequest, res: Response) => Promise<void>;
     updateProfile: (req: AuthRequest, res: Response) => Promise<void>;

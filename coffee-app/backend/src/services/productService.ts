@@ -1,5 +1,5 @@
-import { prisma } from "../index.js";
-import { IProduct, IProductInput } from "../types/product.js";
+import { prisma } from "../index.ts";
+import { IProduct, IProductInput } from "../types/product.ts";
 
 export const productService = {
   // Get all products

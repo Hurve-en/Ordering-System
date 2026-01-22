@@ -1,4 +1,4 @@
-import { prisma } from '../index.js';
+import { prisma } from "../index.js";
 export const productService = {
     // Get all products
     getAllProducts: async () => {
@@ -8,14 +8,14 @@ export const productService = {
     // Get product by ID
     getProductById: async (id) => {
         const product = await prisma.product.findUnique({
-            where: { id }
+            where: { id },
         });
         return product;
     },
     // Create product (admin)
     createProduct: async (data) => {
         const product = await prisma.product.create({
-            data
+            data,
         });
         return product;
     },
@@ -23,16 +23,16 @@ export const productService = {
     updateProduct: async (id, data) => {
         const product = await prisma.product.update({
             where: { id },
-            data
+            data,
         });
         return product;
     },
     // Delete product (admin)
     deleteProduct: async (id) => {
         const product = await prisma.product.delete({
-            where: { id }
+            where: { id },
         });
         return product;
-    }
+    },
 };
 //# sourceMappingURL=productService.js.map

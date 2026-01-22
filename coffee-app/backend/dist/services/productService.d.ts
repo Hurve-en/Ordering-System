@@ -1,4 +1,4 @@
-import { IProduct, IProductInput } from '../types/product.js';
+import { IProduct, IProductInput } from "../types/product.ts";
 export declare const productService: {
     getAllProducts: () => Promise<IProduct[]>;
     getProductById: (id: number) => Promise<IProduct | null>;

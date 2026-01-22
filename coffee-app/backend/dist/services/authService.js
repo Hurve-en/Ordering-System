@@ -1,6 +1,6 @@
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-import { AppError } from '../utils/errorHandler.js';
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import { AppError } from "../utils/errorHandler.js";
 export const authService = {
     // Hash password
     hashPassword: async (password) => {
@@ -13,33 +13,33 @@ export const authService = {
     },
     // Generate JWT token
     generateToken: (payload) => {
-        return jwt.sign(payload, process.env.JWT_SECRET || 'your-secret-key', {
-            expiresIn: '15m'
+        return jwt.sign(payload, process.env.JWT_SECRET || "your-secret-key", {
+            expiresIn: "15m",
         });
     },
     // Generate refresh token
     generateRefreshToken: (payload) => {
-        return jwt.sign(payload, process.env.JWT_REFRESH_SECRET || 'your-refresh-secret', {
-            expiresIn: '7d'
+        return jwt.sign(payload, process.env.JWT_REFRESH_SECRET || "your-refresh-secret", {
+            expiresIn: "7d",
         });
     },
     // Verify token
     verifyToken: (token) => {
         try {
-            return jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+            return jwt.verify(token, process.env.JWT_SECRET || "your-secret-key");
         }
         catch (error) {
-            throw new AppError(401, 'Invalid or expired token', true);
+            throw new AppError(401, "Invalid or expired token", true);
         }
     },
     // Verify refresh token
     verifyRefreshToken: (token) => {
         try {
-            return jwt.verify(token, process.env.JWT_REFRESH_SECRET || 'your-refresh-secret');
+            return jwt.verify(token, process.env.JWT_REFRESH_SECRET || "your-refresh-secret");
         }
         catch (error) {
-            throw new AppError(401, 'Invalid or expired refresh token', true);
+            throw new AppError(401, "Invalid or expired refresh token", true);
         }
-    }
+    },
 };
 //# sourceMappingURL=authService.js.map

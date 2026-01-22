@@ -1,7 +1,7 @@
 import { Response } from "express";
-import { AuthRequest } from "../middleware/auth.js";
-import { userService } from "../services/userService.js";
-import { logger } from "../utils/logger.js";
+import { AuthRequest } from "../middleware/auth.ts";
+import { userService } from "../services/userService.ts";
+import { logger } from "../utils/logger.ts";
 
 export const userController = {
   // Get user profile
