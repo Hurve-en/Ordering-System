@@ -100,21 +100,30 @@ export default function AdminProducts() {
     if (!validateForm()) return;
 
     try {
-      console.log("Submitting product:", formData);
-      console.log("Token:", token);
+      console.log("🔵 Submitting product:", formData);
+      console.log("🔵 Token:", token);
+      console.log("🔵 Token is present:", !!token);
 
       if (editingId) {
-        console.log("Updating product:", editingId);
-        await axios.put(
+        console.log("🟡 Updating product:", editingId);
+        const response = await axios.put(
           `http://localhost:5000/api/products/${editingId}`,
           formData,
           { headers: { Authorization: `Bearer ${token}` } },
         );
+        console.log("✅ Update response:", response.data);
+        alert("✅ Product updated successfully!");
       } else {
-        console.log("Creating new product");
-        await axios.post("http://localhost:5000/api/products", formData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        console.log("🟡 Creating new product");
+        const response = await axios.post(
+          "http://localhost:5000/api/products",
+          formData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        console.log("✅ Create response:", response.data);
+        alert("✅ Product created successfully!");
       }
 
       setFormData({
@@ -133,10 +142,15 @@ export default function AdminProducts() {
       setImagePreview("");
       fetchProducts();
     } catch (err: any) {
-      console.error("Submit error:", err);
-      console.error("Error response:", err.response?.data);
+      console.error("❌ Submit error:", err);
+      console.error("❌ Error response:", err.response?.data);
+      console.error("❌ Error status:", err.response?.status);
+      console.error("❌ Error message:", err.message);
+      const errorMsg =
+        err.response?.data?.message || err.message || "Failed to save product";
+      alert("❌ Error: " + errorMsg);
       setErrors({
-        submit: err.response?.data?.message || "Failed to save product",
+        submit: errorMsg,
       });
     }
   };
