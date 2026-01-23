@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import axios from "axios";
 import ProductCard from "../components/Common/ProductCard";
 import "../styles/premium.css";
@@ -24,6 +26,8 @@ interface Filters {
 }
 
 export default function Menu() {
+  const navigate = useNavigate();
+  const user = useSelector((state: any) => state.auth.user);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -370,15 +374,25 @@ export default function Menu() {
                   )}{" "}
                   of {filteredProducts.length} products
                 </p>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="px-4 py-2 border border-caramel rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                >
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="name">Name: A to Z</option>
-                </select>
+                <div className="flex items-center gap-4">
+                  {user?.role === "admin" && (
+                    <button
+                      onClick={() => navigate("/admin/products")}
+                      className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition font-semibold text-sm"
+                    >
+                      ✓ Add New Product
+                    </button>
+                  )}
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    className="px-4 py-2 border border-caramel rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                  >
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="name">Name: A to Z</option>
+                  </select>
+                </div>
               </div>
 
               {/* Products Grid */}

@@ -29,6 +29,13 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
+const AdminProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  const { isAuthenticated, user } = useAppSelector((state: any) => state.auth);
+  if (!isAuthenticated) return <Navigate to="/admin/login" />;
+  if (user?.role !== "admin") return <Navigate to="/" />;
+  return children;
+};
+
 function App() {
   return (
     <Router>
@@ -74,25 +81,25 @@ function App() {
             <Route
               path="/admin/dashboard"
               element={
-                <ProtectedRoute>
+                <AdminProtectedRoute>
                   <AdminDashboard />
-                </ProtectedRoute>
+                </AdminProtectedRoute>
               }
             />
             <Route
               path="/admin/products"
               element={
-                <ProtectedRoute>
+                <AdminProtectedRoute>
                   <AdminProducts />
-                </ProtectedRoute>
+                </AdminProtectedRoute>
               }
             />
             <Route
               path="/admin/orders"
               element={
-                <ProtectedRoute>
+                <AdminProtectedRoute>
                   <AdminOrders />
-                </ProtectedRoute>
+                </AdminProtectedRoute>
               }
             />
 

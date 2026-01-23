@@ -72,7 +72,9 @@ export default function AdminProducts() {
       newErrors.description = "Description is required";
     if (formData.price <= 0) newErrors.price = "Price must be greater than 0";
     if (formData.stock < 0) newErrors.stock = "Stock cannot be negative";
-    if (!formData.image) newErrors.image = "Product image is required";
+    // Only require image when creating new product, not when updating
+    if (!editingId && !formData.image)
+      newErrors.image = "Product image is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -408,7 +410,7 @@ export default function AdminProducts() {
                 {/* Product Image Upload */}
                 <div>
                   <label className="block text-sm font-semibold text-brown mb-2">
-                    Product Image *
+                    Product Image {!editingId && "*"}
                   </label>
                   <input
                     type="file"

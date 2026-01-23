@@ -151,7 +151,7 @@ export default function AdminDashboard() {
           {/* Quick Actions */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
             <button
-              onClick={() => navigate("/admin-products")}
+              onClick={() => navigate("/admin/products")}
               className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition text-left group"
             >
               <div className="flex items-start justify-between mb-4">
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => navigate("/admin-orders")}
+              onClick={() => navigate("/admin/orders")}
               className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition text-left group"
             >
               <div className="flex items-start justify-between mb-4">
@@ -208,7 +208,7 @@ export default function AdminDashboard() {
                   <div
                     key={order.id}
                     className="border-l-4 border-accent bg-gradient-to-r from-cream to-transparent p-6 rounded-lg hover:shadow-md transition cursor-pointer"
-                    onClick={() => navigate(`/admin-orders/${order.id}`)}
+                    onClick={() => navigate(`/admin/orders/${order.id}`)}
                   >
                     <div className="flex justify-between items-start flex-col sm:flex-row gap-4">
                       <div>
